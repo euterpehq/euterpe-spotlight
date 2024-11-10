@@ -3,6 +3,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { getBackgroundColor, type RGB } from "@/lib/colors";
 import { songs, Song } from "@/data/songs";
 import PlayerControls from "@/partials/feed/PlayerControls";
+import NextSongButton from "@/components/NextSongButton";
 
 const DEFAULT_BACKGROUND_FALLBACK_COLOR = "#181818";
 
@@ -10,7 +11,7 @@ const FullScreenPlayer: React.FC = () => {
   const [currentSongIndex, setCurrentSongIndex] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
   const [backgroundColor, setBackgroundColor] = useState<string>(
-    DEFAULT_BACKGROUND_FALLBACK_COLOR
+    DEFAULT_BACKGROUND_FALLBACK_COLOR,
   );
   const [audio, setAudio] = useState<HTMLAudioElement | null>(null);
   const imageRef = useRef<HTMLImageElement>(null);
@@ -48,13 +49,13 @@ const FullScreenPlayer: React.FC = () => {
           0,
           0,
           image.width,
-          image.height
+          image.height,
         ).data;
 
         const rgbColor: RGB = getBackgroundColor(
           imageData,
           image.width,
-          image.height
+          image.height,
         );
         setBackgroundColor(`rgb(${rgbColor.join(",")})`);
       } else {
@@ -87,45 +88,46 @@ const FullScreenPlayer: React.FC = () => {
 
   function playPrevious() {
     setCurrentSongIndex(
-      (prevIndex) => (prevIndex - 1 + songs.length) % songs.length
+      (prevIndex) => (prevIndex - 1 + songs.length) % songs.length,
     );
     setIsPlaying(true);
   }
 
   return (
     <div
-      className="fixed top-0 left-0 w-screen h-screen text-white transition-all duration-300 ease-in-out cursor-pointer"
-      onClick={togglePlayPause}
+      className="flex h-full w-full flex-col text-white transition-all duration-300 ease-in-out"
       style={{ background: backgroundColor }}
     >
-      <div className="px-10 py-6 flex flex-col justify-between h-full">
-        <div>
-          <div className="font-bold">Playing on Euterpe</div>
-        </div>
-        <div className="flex flex-col gap-32">
-          <div className="flex items-end gap-4">
-            {song.albumArt && (
-              <img
-                ref={imageRef}
-                src={song.albumArt}
-                alt="Album Art"
-                onLoad={resolveBackgroundColor}
-                className="w-32 max-w-xs rounded-lg shadow-lg"
-                crossOrigin="anonymous"
-              />
-            )}
-            <div>
-              <h2 className="text-3xl bold">{song.title}</h2>
-              <p className="text-sm font-semibold opacity-90">{song.artist}</p>
-            </div>
+      <div className="mr-6 mt-[18px] flex justify-end">
+        <NextSongButton playNext={playNext} />
+      </div>
+      <div className="flex flex-col items-center gap-6">
+        <div className="flex flex-col items-center gap-6">
+          {song.albumArt && (
+            <img
+              ref={imageRef}
+              src={song.albumArt}
+              alt="Album Art"
+              onLoad={resolveBackgroundColor}
+              className="h-[360px] w-[360px] max-w-xs rounded-[16px] shadow-lg"
+              crossOrigin="anonymous"
+            />
+          )}
+          <div className="font-inter flex flex-col items-center gap-2">
+            <h2 className="text-xl font-semibold tracking-[0.04em]">
+              {song.title}
+            </h2>
+            <p className="text-base font-medium tracking-[0.04em] text-[#BDBDBD]">
+              {song.artist}
+            </p>
           </div>
-          <PlayerControls
-            isPlaying={isPlaying}
-            togglePlayPause={togglePlayPause}
-            playPrevious={playPrevious}
-            playNext={playNext}
-          />
         </div>
+        <PlayerControls
+          isPlaying={isPlaying}
+          togglePlayPause={togglePlayPause}
+          playPrevious={playPrevious}
+          playNext={playNext}
+        />
       </div>
     </div>
   );

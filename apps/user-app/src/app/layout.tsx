@@ -1,16 +1,39 @@
 import type { Metadata } from "next";
+import { Urbanist, Figtree, Inter } from "next/font/google";
 import localFont from "next/font/local";
 import "./globals.css";
+import { AppProvider } from "@/providers/app";
+import { cn } from "@/lib/utils";
 
-const geistSans = localFont({
-  src: "./fonts/GeistVF.woff",
-  variable: "--font-geist-sans",
-  weight: "100 900",
-});
-const geistMono = localFont({
-  src: "./fonts/GeistMonoVF.woff",
-  variable: "--font-geist-mono",
-  weight: "100 900",
+const urbanist = Urbanist({ subsets: ["latin"], variable: "--font-urbanist" });
+const figtree = Figtree({ subsets: ["latin"], variable: "--font-figtree" });
+const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
+
+const aeonik = localFont({
+  src: [
+    {
+      path: "../assets/fonts/Aeonik-Light.otf",
+      weight: "300",
+      style: "normal",
+    },
+    {
+      path: "../assets/fonts/Aeonik-Regular.otf",
+      weight: "400",
+      style: "normal",
+    },
+    {
+      path: "../assets/fonts/Aeonik-Medium.otf",
+      weight: "500",
+      style: "normal",
+    },
+    {
+      path: "../assets/fonts/Aeonik-Bold.otf",
+      weight: "700",
+      style: "normal",
+    },
+  ],
+  display: "swap",
+  variable: "--font-aeonik",
 });
 
 export const metadata: Metadata = {
@@ -24,11 +47,17 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={cn(
+          urbanist.className,
+          urbanist.variable,
+          aeonik.variable,
+          figtree.variable,
+          inter.variable,
+        )}
       >
-        {children}
+        <AppProvider>{children}</AppProvider>
       </body>
     </html>
   );
