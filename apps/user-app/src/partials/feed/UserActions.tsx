@@ -1,7 +1,11 @@
+"use client";
+
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { EUTIcon, EUTIconBlackBackground } from "@/components/Icons";
+import { useAccount } from "wagmi";
+import { useToast } from "@/components/ui/use-toast";
 
 type UserActionsProps = {
   canClaimReward: boolean;
@@ -28,6 +32,21 @@ type ClaimButtonProps = {
 };
 
 function ClaimButton({ onClick, disabled = true }: ClaimButtonProps) {
+  const { isConnected } = useAccount();
+  const { toast } = useToast();
+  const handleClick = () => {
+    if (isConnected) {
+      onClick();
+      toast({
+        title: "You just earned 0.2 EUT 🎉"
+      })
+    } else {
+      toast({
+        title: "You need to connect your wallet",
+      });
+    }
+  };
+
   return (
     <Button
       className={cn(
@@ -36,7 +55,7 @@ function ClaimButton({ onClick, disabled = true }: ClaimButtonProps) {
           ? "bg-white/20 text-[#757575]"
           : "bg-primary text-[#0F0F0F] transition-colors",
       )}
-      onClick={onClick}
+      onClick={handleClick}
       disabled={disabled}
     >
       {disabled ? (

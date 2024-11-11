@@ -2,6 +2,7 @@ import React from "react";
 import { ThemeProvider } from "./theme";
 import { Web3Provider } from "./web3";
 import { StoreProvider } from "./store";
+import { Toaster } from "@/components/ui/toaster";
 
 export function AppProvider({ children }: { children: React.ReactNode }) {
   return (
@@ -12,7 +13,9 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       disableTransitionOnChange
     >
       <Web3Provider>
-        <StoreProvider>{children}</StoreProvider>
+        <StoreProvider>{children}
+          <Toaster />
+        </StoreProvider>
       </Web3Provider>
     </ThemeProvider>
   );
