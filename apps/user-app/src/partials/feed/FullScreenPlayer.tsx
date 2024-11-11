@@ -7,6 +7,7 @@ import NextSongButton from "@/components/NextSongButton";
 import UserActions from "@/partials/feed/UserActions";
 import HiddenCoverArt from "@/components/HiddenCoverArt";
 import StreamingLinks from "@/partials/feed/StreamingLinks";
+import { useEarningsStore } from "@/providers/store/earnings.store";
 
 const DEFAULT_BACKGROUND_FALLBACK_COLOR = "transparent";
 const CLAIM_THRESHOLD = 30;
@@ -23,6 +24,9 @@ const FullScreenPlayer: React.FC = () => {
   const [discovered, setDiscovered] = useState(false);
   const [showStreamingLinks, setShowStreamingLinks] = useState(false);
   const [canClaimReward, setCanClaimReward] = useState(false);
+  const [isClaiming, setIsClaiming] = useState(false);
+  const [isClaimed, setIsClaimed] = useState(false);
+  const updateEarnings = useEarningsStore((state) => state.updateEarnings);
 
   const song = songs[currentSongIndex];
 
@@ -34,7 +38,11 @@ const FullScreenPlayer: React.FC = () => {
     }
     function handleTimeUpdate() {
       setCurrentTime(audioInstance.currentTime);
-      if (audioInstance.currentTime >= CLAIM_THRESHOLD && !canClaimReward) {
+      if (
+        audioInstance.currentTime >= CLAIM_THRESHOLD &&
+        !canClaimReward &&
+        !isClaimed
+      ) {
         setCanClaimReward(true);
       }
     }
@@ -103,6 +111,7 @@ const FullScreenPlayer: React.FC = () => {
 
   function playNext() {
     setCanClaimReward(false);
+    setIsClaimed(false);
     setDiscovered(false);
     setShowStreamingLinks(false);
     setBackgroundColor(DEFAULT_BACKGROUND_FALLBACK_COLOR);
@@ -131,7 +140,11 @@ const FullScreenPlayer: React.FC = () => {
   }
 
   function handleClaim() {
-    console.log("Claiming song");
+    if (!isClaimed && canClaimReward) {
+      updateEarnings(0.2);
+      setIsClaimed(true);
+      setCanClaimReward(false);
+    }
   }
 
   function handleDiscover() {
@@ -141,7 +154,7 @@ const FullScreenPlayer: React.FC = () => {
 
   return (
     <div
-      className="fixed left-0 top-0 z-50 flex h-full w-full flex-col pt-[3.25rem] text-white transition-all duration-300 ease-in-out"
+      className="fixed left-0 top-0 z-30 flex h-full w-full flex-col pt-[3.25rem] text-white transition-all duration-300 ease-in-out"
       style={
         discovered
           ? {
@@ -214,7 +227,7 @@ const FullScreenPlayer: React.FC = () => {
           <UserActions
             claimAction={handleClaim}
             discoverArtistAction={handleDiscover}
-            canClaimReward={canClaimReward}
+            canClaimReward={canClaimReward && !isClaimed}
           />
         )}
       </div>

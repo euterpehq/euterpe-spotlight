@@ -46,7 +46,7 @@ function ClaimButton({ onClick, disabled = true }: ClaimButtonProps) {
       )}
       <div className="inline-flex items-center gap-1">
         <span>Claim</span>
-        <span>0.75345</span>
+        <span>0.2 EUT</span>
       </div>
     </Button>
   );
