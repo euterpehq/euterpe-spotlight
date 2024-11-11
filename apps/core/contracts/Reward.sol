@@ -3,10 +3,6 @@ pragma solidity ^0.8.27;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
-// interface IERC20 {
-//     function transfer(address recipient, uint256 amount) external returns (bool);
-// }
-
 contract Reward {
     IERC20 public token;
 
