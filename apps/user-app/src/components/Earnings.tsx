@@ -1,13 +1,10 @@
 import React from "react";
-import Image from "next/image";
-import EUTIcon from "@/assets/icons/eut.png";
+import { EUTIcon } from "@/components//Icons";
 
 function Earnings() {
   return (
-    <div className="font-figtree flex cursor-pointer items-center gap-2 text-xs">
-      <div className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-primary">
-        <Image src={EUTIcon} alt="EUT" />
-      </div>
+    <div className="flex cursor-pointer items-center gap-2 font-figtree text-xs">
+      <EUTIcon className="h-5 w-5" />
       0.75345
     </div>
   );

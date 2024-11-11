@@ -1,9 +1,6 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
-import Image from "next/image";
-import EUTIcon from "@/assets/icons/eut.png";
-import { cn } from "@/lib/utils";
-import { songs, Song } from "@/data/songs";
+import { type Song } from "@/data/songs";
 
 function StreamingLinks({ song }: { song: Song }) {
   return (

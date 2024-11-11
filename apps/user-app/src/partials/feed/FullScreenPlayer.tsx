@@ -9,6 +9,7 @@ import HiddenCoverArt from "@/components/HiddenCoverArt";
 import StreamingLinks from "@/partials/feed/StreamingLinks";
 
 const DEFAULT_BACKGROUND_FALLBACK_COLOR = "transparent";
+const CLAIM_THRESHOLD = 30;
 
 const FullScreenPlayer: React.FC = () => {
   const [currentSongIndex, setCurrentSongIndex] = useState(0);
@@ -21,24 +22,32 @@ const FullScreenPlayer: React.FC = () => {
   const [duration, setDuration] = useState(0);
   const [discovered, setDiscovered] = useState(false);
   const [showStreamingLinks, setShowStreamingLinks] = useState(false);
+  const [canClaimReward, setCanClaimReward] = useState(false);
 
   const song = songs[currentSongIndex];
 
   useEffect(() => {
     const audioInstance = new Audio(song.url);
     setAudio(audioInstance);
-    audioInstance.addEventListener("loadedmetadata", () => {
+    function handleLoadedMetadata() {
       setDuration(audioInstance.duration);
-    });
-    audioInstance.addEventListener("timeupdate", () => {
+    }
+    function handleTimeUpdate() {
       setCurrentTime(audioInstance.currentTime);
-    });
+      if (audioInstance.currentTime >= CLAIM_THRESHOLD && !canClaimReward) {
+        setCanClaimReward(true);
+      }
+    }
+    audioInstance.addEventListener("loadedmetadata", handleLoadedMetadata);
+    audioInstance.addEventListener("timeupdate", handleTimeUpdate);
+    audioInstance.addEventListener("ended", playNext);
 
     return () => {
       audioInstance.pause();
       audioInstance.src = "";
-      audioInstance.removeEventListener("loadedmetadata", () => {});
-      audioInstance.removeEventListener("timeupdate", () => {});
+      audioInstance.removeEventListener("loadedmetadata", handleLoadedMetadata);
+      audioInstance.removeEventListener("timeupdate", handleTimeUpdate);
+      audioInstance.removeEventListener("ended", playNext);
     };
   }, [currentSongIndex]);
 
@@ -93,8 +102,12 @@ const FullScreenPlayer: React.FC = () => {
   };
 
   function playNext() {
+    setCanClaimReward(false);
     setDiscovered(false);
+    setShowStreamingLinks(false);
     setBackgroundColor(DEFAULT_BACKGROUND_FALLBACK_COLOR);
+    setCurrentTime(0);
+    setDuration(0);
     setCurrentSongIndex((prevIndex) => (prevIndex + 1) % songs.length);
     setIsPlaying(true);
   }
@@ -185,7 +198,7 @@ const FullScreenPlayer: React.FC = () => {
               viewBox="0 0 24 24"
               strokeWidth="1.5"
               stroke="#BDBDBD"
-              className="size-5 cursor-pointer"
+              className="size-4 cursor-pointer"
               onClick={() => setShowStreamingLinks(false)}
             >
               <path
@@ -201,6 +214,7 @@ const FullScreenPlayer: React.FC = () => {
           <UserActions
             claimAction={handleClaim}
             discoverArtistAction={handleDiscover}
+            canClaimReward={canClaimReward}
           />
         )}
       </div>
