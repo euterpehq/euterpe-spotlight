@@ -14,6 +14,7 @@ export default {
       aeonik: ["var(--font-aeonik)"],
       figtree: ["var(--font-figtree)"],
       inter: ["var(--font-inter)"],
+      azeret: ["var(--font-azeret)"],
     },
     extend: {
       colors: {

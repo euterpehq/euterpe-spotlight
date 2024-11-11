@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Urbanist, Figtree, Inter } from "next/font/google";
+import { Urbanist, Figtree, Inter, Azeret_Mono } from "next/font/google";
 import localFont from "next/font/local";
 import "./globals.css";
 import { AppProvider } from "@/providers/app";
@@ -8,6 +8,7 @@ import { cn } from "@/lib/utils";
 const urbanist = Urbanist({ subsets: ["latin"], variable: "--font-urbanist" });
 const figtree = Figtree({ subsets: ["latin"], variable: "--font-figtree" });
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
+const azeret = Azeret_Mono({ subsets: ["latin"], variable: "--font-azeret" });
 
 const aeonik = localFont({
   src: [

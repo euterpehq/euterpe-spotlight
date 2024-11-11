@@ -1,11 +1,14 @@
 "use client";
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import { getBackgroundColor, type RGB } from "@/lib/colors";
 import { songs, Song } from "@/data/songs";
 import PlayerControls from "@/partials/feed/PlayerControls";
 import NextSongButton from "@/components/NextSongButton";
+import UserActions from "@/partials/feed/UserActions";
+import HiddenCoverArt from "@/components/HiddenCoverArt";
+import StreamingLinks from "@/partials/feed/StreamingLinks";
 
-const DEFAULT_BACKGROUND_FALLBACK_COLOR = "#181818";
+const DEFAULT_BACKGROUND_FALLBACK_COLOR = "transparent";
 
 const FullScreenPlayer: React.FC = () => {
   const [currentSongIndex, setCurrentSongIndex] = useState(0);
@@ -14,17 +17,28 @@ const FullScreenPlayer: React.FC = () => {
     DEFAULT_BACKGROUND_FALLBACK_COLOR,
   );
   const [audio, setAudio] = useState<HTMLAudioElement | null>(null);
-  const imageRef = useRef<HTMLImageElement>(null);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [duration, setDuration] = useState(0);
+  const [discovered, setDiscovered] = useState(false);
+  const [showStreamingLinks, setShowStreamingLinks] = useState(false);
 
   const song = songs[currentSongIndex];
 
   useEffect(() => {
     const audioInstance = new Audio(song.url);
     setAudio(audioInstance);
+    audioInstance.addEventListener("loadedmetadata", () => {
+      setDuration(audioInstance.duration);
+    });
+    audioInstance.addEventListener("timeupdate", () => {
+      setCurrentTime(audioInstance.currentTime);
+    });
 
     return () => {
       audioInstance.pause();
       audioInstance.src = "";
+      audioInstance.removeEventListener("loadedmetadata", () => {});
+      audioInstance.removeEventListener("timeupdate", () => {});
     };
   }, [currentSongIndex]);
 
@@ -34,39 +48,36 @@ const FullScreenPlayer: React.FC = () => {
     }
   }, [audio]);
 
-  const resolveBackgroundColor = () => {
-    if (imageRef.current) {
-      const canvas = document.createElement("canvas");
-      const ctx = canvas.getContext("2d");
+  const resolveBackgroundColor = (image: HTMLImageElement) => {
+    const canvas = document.createElement("canvas");
+    const ctx = canvas.getContext("2d");
 
-      if (ctx) {
-        const image = imageRef.current;
-        canvas.width = image.width;
-        canvas.height = image.height;
+    if (ctx) {
+      canvas.width = image.width;
+      canvas.height = image.height;
 
-        ctx.drawImage(image, 0, 0, image.width, image.height);
-        const imageData = ctx.getImageData(
-          0,
-          0,
-          image.width,
-          image.height,
-        ).data;
+      ctx.drawImage(image, 0, 0, image.width, image.height);
+      const imageData = ctx.getImageData(0, 0, image.width, image.height).data;
 
-        const rgbColor: RGB = getBackgroundColor(
-          imageData,
-          image.width,
-          image.height,
-        );
-        setBackgroundColor(`rgb(${rgbColor.join(",")})`);
-      } else {
-        setBackgroundColor(DEFAULT_BACKGROUND_FALLBACK_COLOR);
-      }
+      const rgbColor: RGB = getBackgroundColor(
+        imageData,
+        image.width,
+        image.height,
+      );
+      setBackgroundColor(`rgb(${rgbColor.join(",")})`);
+    } else {
+      setBackgroundColor(DEFAULT_BACKGROUND_FALLBACK_COLOR);
     }
   };
 
   useEffect(() => {
-    if (imageRef.current && imageRef.current.complete) {
-      resolveBackgroundColor();
+    if (song.albumArt) {
+      const image = new Image();
+      image.crossOrigin = "anonymous";
+      image.src = song.albumArt;
+      image.onload = () => {
+        resolveBackgroundColor(image);
+      };
     }
   }, [song.albumArt]);
 
@@ -82,6 +93,8 @@ const FullScreenPlayer: React.FC = () => {
   };
 
   function playNext() {
+    setDiscovered(false);
+    setBackgroundColor(DEFAULT_BACKGROUND_FALLBACK_COLOR);
     setCurrentSongIndex((prevIndex) => (prevIndex + 1) % songs.length);
     setIsPlaying(true);
   }
@@ -93,32 +106,65 @@ const FullScreenPlayer: React.FC = () => {
     setIsPlaying(true);
   }
 
+  function handleSeek(e: React.MouseEvent<HTMLDivElement, MouseEvent>) {
+    if (audio) {
+      const rect = e.currentTarget.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const width = rect.width;
+      const seekTime = (x / width) * audio.duration;
+      audio.currentTime = seekTime;
+      setCurrentTime(seekTime);
+    }
+  }
+
+  function handleClaim() {
+    console.log("Claiming song");
+  }
+
+  function handleDiscover() {
+    setDiscovered(true);
+    setShowStreamingLinks(true);
+  }
+
   return (
     <div
-      className="flex h-full w-full flex-col text-white transition-all duration-300 ease-in-out"
-      style={{ background: backgroundColor }}
+      className="fixed left-0 top-0 z-50 flex h-full w-full flex-col pt-[3.25rem] text-white transition-all duration-300 ease-in-out"
+      style={
+        discovered
+          ? {
+              background: `linear-gradient(
+      to bottom, 
+      ${backgroundColor.replace("rgb", "rgba").replace(")", ", 0.1)")} 0%, 
+      ${backgroundColor.replace("rgb", "rgba").replace(")", ", 0)")} 100%
+    )`,
+            }
+          : {}
+      }
     >
-      <div className="mr-6 mt-[18px] flex justify-end">
+      <div className="mr-6 mt-6 flex justify-end">
         <NextSongButton playNext={playNext} />
       </div>
       <div className="flex flex-col items-center gap-6">
         <div className="flex flex-col items-center gap-6">
-          {song.albumArt && (
-            <img
-              ref={imageRef}
-              src={song.albumArt}
-              alt="Album Art"
-              onLoad={resolveBackgroundColor}
-              className="h-[360px] w-[360px] max-w-xs rounded-[16px] shadow-lg"
-              crossOrigin="anonymous"
-            />
+          {discovered ? (
+            song.albumArt && (
+              <img
+                src={song.albumArt}
+                alt="Album Art"
+                className="h-[360px] w-[360px] rounded-[16px]"
+                crossOrigin="anonymous"
+              />
+            )
+          ) : (
+            <HiddenCoverArt />
           )}
-          <div className="font-inter flex flex-col items-center gap-2">
+          <div className="flex flex-col items-center gap-2 font-inter">
             <h2 className="text-xl font-semibold tracking-[0.04em]">
-              {song.title}
+              {discovered ? song.title : "*************"}
             </h2>
+
             <p className="text-base font-medium tracking-[0.04em] text-[#BDBDBD]">
-              {song.artist}
+              {discovered ? song.artist : "********"}
             </p>
           </div>
         </div>
@@ -127,7 +173,36 @@ const FullScreenPlayer: React.FC = () => {
           togglePlayPause={togglePlayPause}
           playPrevious={playPrevious}
           playNext={playNext}
+          currentTime={currentTime}
+          duration={duration}
+          handleSeek={handleSeek}
         />
+        {showStreamingLinks ? (
+          <div className="flex items-center gap-3">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth="1.5"
+              stroke="#BDBDBD"
+              className="size-5 cursor-pointer"
+              onClick={() => setShowStreamingLinks(false)}
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M15.75 19.5 8.25 12l7.5-7.5"
+              />
+            </svg>
+
+            <StreamingLinks song={song} />
+          </div>
+        ) : (
+          <UserActions
+            claimAction={handleClaim}
+            discoverArtistAction={handleDiscover}
+          />
+        )}
       </div>
     </div>
   );

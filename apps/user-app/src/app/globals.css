@@ -4,7 +4,7 @@
 
 @layer base {
   :root {
-    --background: 0 0% 11%;
+    --background: 0 0% 5.9%;
     --foreground: 0 100% 100%;
 
     --surface: 0 0% 16%;
@@ -16,7 +16,7 @@
     --popover: 222.2 84% 4.9%;
     --popover-foreground: 210 40% 98%;
 
-    --primary: 86 100% 68%;
+    --primary: 86 100% 72%;
     --primary-foreground: 150 33% 1%;
 
     --secondary: 217.2 32.6% 17.5%;
@@ -45,7 +45,7 @@
   }
 
   .dark {
-    --background: 0 0% 11%;
+    --background: 0 0% 5.9%;
     --foreground: 0 100% 100%;
 
     --surface: 0 0% 16%;
@@ -60,7 +60,7 @@
     --popover: 222.2 84% 4.9%;
     --popover-foreground: 210 40% 98%;
 
-    --primary: 86 100% 68%;
+    --primary: 86 100% 72%;
     --primary-foreground: 150 33% 1%;
 
     --secondary: 86 100% 20%;
