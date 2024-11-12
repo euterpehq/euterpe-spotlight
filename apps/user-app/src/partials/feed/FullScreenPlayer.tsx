@@ -1,13 +1,14 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { getBackgroundColor, type RGB } from "@/lib/colors";
-import { songs, Song } from "@/data/songs";
+import { songs } from "@/data/songs";
 import PlayerControls from "@/partials/feed/PlayerControls";
 import NextSongButton from "@/components/NextSongButton";
 import UserActions from "@/partials/feed/UserActions";
 import HiddenCoverArt from "@/components/HiddenCoverArt";
 import StreamingLinks from "@/partials/feed/StreamingLinks";
 import { useEarningsStore } from "@/providers/store/earnings.store";
+// import NextImage from "next/image";
 
 const DEFAULT_BACKGROUND_FALLBACK_COLOR = "transparent";
 const CLAIM_THRESHOLD = 30;
@@ -24,7 +25,6 @@ const FullScreenPlayer: React.FC = () => {
   const [discovered, setDiscovered] = useState(false);
   const [showStreamingLinks, setShowStreamingLinks] = useState(false);
   const [canClaimReward, setCanClaimReward] = useState(false);
-  const [isClaiming, setIsClaiming] = useState(false);
   const [isClaimed, setIsClaimed] = useState(false);
   const updateEarnings = useEarningsStore((state) => state.updateEarnings);
 
@@ -181,6 +181,8 @@ const FullScreenPlayer: React.FC = () => {
                 alt="Album Art"
                 className="h-[360px] w-[360px] rounded-[16px]"
                 crossOrigin="anonymous"
+                width={360}
+                height={360}
               />
             )
           ) : (

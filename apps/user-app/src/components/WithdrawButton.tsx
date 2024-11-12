@@ -38,7 +38,7 @@ function WithdrawButton({ onSuccess }: { onSuccess: () => void }) {
     setIsPending(true);
 
     try {
-      const { data, error } = await withdraw(amount.toString());
+      const { error } = await withdraw(amount.toString());
 
       if (error) {
         console.log(error);

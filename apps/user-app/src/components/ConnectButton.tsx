@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import React, { useEffect, useRef, useState } from "react";
 import { ConnectButton as OriginalConnectButton } from "@rainbow-me/rainbowkit";
@@ -50,15 +51,8 @@ function ConnectButton({ align }: { align?: "left" | "right" }) {
         openAccountModal,
         openChainModal,
         openConnectModal,
-        authenticationStatus,
         mounted,
       }) => {
-        // const ready = mounted && authenticationStatus !== "loading";
-        // const connected =
-        //   ready &&
-        //   account &&
-        //   chain &&
-        //   (!authenticationStatus || authenticationStatus === "authenticated");
         const ready = mounted;
         const connected = ready && account && chain;
 
@@ -157,7 +151,7 @@ function ConnectButton({ align }: { align?: "left" | "right" }) {
               );
             })()}
 
-            {/* @ts-expect-error */}
+            {/* @ts-expect-error types have issues */}
             <Transition
               className={`absolute top-full z-10 mt-1 min-w-44 origin-top-right overflow-hidden rounded border border-card/65 bg-surface py-1.5 shadow-lg ${align === "right" ? "right-0" : "left-0"}`}
               show={dropdownOpen}
