@@ -56,6 +56,7 @@ export default function RootLayout({
           aeonik.variable,
           figtree.variable,
           inter.variable,
+          azeret.variable,
         )}
       >
         <AppProvider>{children}</AppProvider>

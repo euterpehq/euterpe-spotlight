@@ -3,6 +3,7 @@ import { createStore } from "zustand/vanilla";
 export type EarningsStore = {
   earnings: number;
   updateEarnings: (amount: number) => void;
+  resetEarnings: () => void;
 };
 
 export const createEarningsStore = () => {
@@ -11,6 +12,11 @@ export const createEarningsStore = () => {
     updateEarnings: (amount) => {
       set((state) => ({
         earnings: state.earnings + amount,
+      }));
+    },
+    resetEarnings: () => {
+      set(() => ({
+        earnings: 0,
       }));
     },
   }));
