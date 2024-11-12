@@ -154,7 +154,7 @@ const FullScreenPlayer: React.FC = () => {
 
   return (
     <div
-      className="fixed left-0 top-0 z-30 flex h-full w-full flex-col pt-[3.25rem] text-white transition-all duration-300 ease-in-out"
+      className="fixed left-0 top-0 z-30 flex h-full w-full flex-col overflow-y-scroll pt-[3.25rem] text-white transition-all duration-300 ease-in-out"
       style={
         discovered
           ? {
@@ -168,9 +168,11 @@ const FullScreenPlayer: React.FC = () => {
       }
     >
       <div className="mr-6 mt-6 flex justify-end">
-        <NextSongButton playNext={playNext} />
+        <div className="invisible md:visible">
+          <NextSongButton playNext={playNext} />
+        </div>
       </div>
-      <div className="flex flex-col items-center gap-6">
+      <div className="flex flex-col items-center gap-6 px-6">
         <div className="flex flex-col items-center gap-6">
           {discovered ? (
             song.albumArt && (
@@ -230,6 +232,9 @@ const FullScreenPlayer: React.FC = () => {
             canClaimReward={canClaimReward && !isClaimed}
           />
         )}
+        <div className="md:hidden">
+          <NextSongButton playNext={playNext} />
+        </div>
       </div>
     </div>
   );
