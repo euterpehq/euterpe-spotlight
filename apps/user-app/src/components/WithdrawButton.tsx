@@ -1,16 +1,38 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { LuLoader2 } from "react-icons/lu";
 import confetti from "canvas-confetti";
 import { useToast } from "@/components/ui/use-toast";
 import { withdraw } from "@/blockchain/reward.interaction";
 import { useEarningsStore } from "@/providers/store/earnings.store";
+import { useTokenStore } from "@/providers/store/token.store";
+import { addEUTToken } from "@/lib/wallet";
 
 function WithdrawButton({ onSuccess }: { onSuccess: () => void }) {
   const amount = useEarningsStore((state) => state.earnings);
   const resetEarnings = useEarningsStore((state) => state.resetEarnings);
+  const { tokenAdded, setTokenAdded } = useTokenStore((state) => state);
   const [isPending, setIsPending] = useState(false);
   const { toast } = useToast();
+
+  useEffect(() => {
+    if (!tokenAdded) {
+      addEUTToken().then((success) => {
+        if (success) {
+          setTokenAdded(true);
+          toast({
+            title: "Token Added",
+            description: "EUT token has been added to your wallet.",
+          });
+        } else {
+          toast({
+            title: "Add Token Failed",
+            description: "Could not add EUT token to your wallet.",
+          });
+        }
+      });
+    }
+  }, []);
 
   async function handleWithdraw() {
     setIsPending(true);
